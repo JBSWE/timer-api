@@ -1,0 +1,15 @@
+# IDE / Editor
+.idea
+.vscode
+
+# Dependency directory
+node_modules/
+
+# Application build / generate output
+dist
+
+# Lint cache
+.eslintcache
+
+# dotenv environment variables files for local development
+.env.*.local
