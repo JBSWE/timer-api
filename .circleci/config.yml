@@ -1,0 +1,42 @@
+version: 2.1
+
+environments:
+  SERVICE_NAME: timer-api
+
+workflows:
+  build-deploy:
+    jobs:
+      - build-and-test:
+          context: timer-api
+          filters:
+            tags:
+              only: /.*/
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:14.17.4
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore NPM Package Cache
+          keys:
+            - dependencies-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install node dependencies
+          command: npm ci
+      - save_cache:
+          name: Save NPM Package Cache
+          key: dependencies-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/usr/local/lib/node_modules
+      - run:
+          name: Build project
+          command: npm run build
+      - run:
+          name: Lint project
+          command: npm run lint
+      - run:
+          name: Test project
+          command: npm run test
