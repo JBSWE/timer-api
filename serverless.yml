@@ -1,0 +1,80 @@
+org: jackburke
+app: timer-api
+service: timer-api
+frameworkVersion: '3.21.0'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-central-1
+  lambdaHashingVersion: '20201221'
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${sls:stage}
+  httpApi:
+    cors: true
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+          Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+          Resource:
+            - Fn::GetAtt: [ TimerCommandQueue, Arn ]
+
+functions:
+  postTimer:
+    handler: dist/handlers/httpHandler.postTimer
+    events:
+      - httpApi:
+          path: /timer
+          method: post
+
+  processCommand:
+    handler: dist/handlers/commandHandler.processCommand
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - TimerCommandQueue
+              - Arn
+          batchSize: 1
+
+resources:
+  Resources:
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+
+    TimerCommandQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:service}-command-queue-${opt:stage, self:provider.stage}
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - LifecycleCommandDeadLetterQueue
+              - Arn
+          maxReceiveCount: 5
+
+    TimerCommandDeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-command-${opt:stage, self:provider.stage}-deadletter
