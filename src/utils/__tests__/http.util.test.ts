@@ -1,8 +1,10 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-import { getCorrelationIdFromHttpRequest } from '../http.util'
+import { getCorrelationIdFromHttpRequest, makeAcceptedHttpResponse, makeErrorResponse } from '../http.util'
 
 describe('http.util', () => {
+
+  describe('getCorrelationIdFromHttpRequest', () => {
     it('should return correlation id from headers', () => {
       const event = {
         headers: {
@@ -25,4 +27,48 @@ describe('http.util', () => {
 
       expect(consumerName).toEqual(undefined)
     })
+  })
+
+  describe('makeAcceptedHttpResponse', () => {
+    it('should return timer id with response 202 accepted', () => {
+      const timer = {
+        id: 'some-id',
+        time: 'some-time',
+        url: 'some-url',
+        processed: false
+      }
+
+      const response = makeAcceptedHttpResponse(timer)
+
+      expect(response).toEqual(
+        {
+          body: '{"id":"some-id"}',
+          headers:
+            {
+              'Access-Control-Allow-Credentials': true,
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json'
+            },
+          statusCode: 202
+        })
+    })
+  })
+
+  describe('makeErrorResponse', () => {
+    it('should return error', () => {
+
+      const response = makeErrorResponse(404, 'Not found')
+
+      expect(response).toEqual({
+        body: '{"error":"Not found"}',
+        headers: {
+          'Access-Control-Allow-Credentials': true,
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        statusCode: 404
+      })
+    })
+  })
+
 })
