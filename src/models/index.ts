@@ -1,3 +1,7 @@
 export * from './aws.model'
+export * from './command.model'
+export * from './http.model'
 export * from './logger.model'
+export * from './sqsRequest.model'
+export * from './timer.model'
 export * from './timerContext.model'
