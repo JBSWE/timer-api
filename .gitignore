@@ -13,3 +13,6 @@ dist
 
 # dotenv environment variables files for local development
 .env.*.local
+
+# serverless genereated files
+.serverless
