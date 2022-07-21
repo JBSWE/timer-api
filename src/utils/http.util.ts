@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { Timer } from "../models/timer.model";
+
+import type { Timer } from '../models'
 
 export function makeAcceptedHttpResponse(result: Timer): APIGatewayProxyResult {
   return {
