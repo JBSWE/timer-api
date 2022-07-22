@@ -15,6 +15,7 @@ provider:
   lambdaHashingVersion: '20201221'
   environment:
     DYNAMODB_TABLE: ${self:service}-${sls:stage}
+    SQS_URL: { Ref: TimerCommandQueue }
   httpApi:
     cors: true
   iam:
