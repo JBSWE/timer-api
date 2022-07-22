@@ -1,3 +1,4 @@
+import { DynamoDB } from 'aws-sdk'
 import type {
   DocumentClient,
   GetItemInput,
@@ -8,8 +9,6 @@ import type {
 
 import { NotFoundError } from '../errors/notFound.error'
 import type { Timer } from '../models'
-
-import { DynamoDB } from 'aws-sdk'
 
 export class TimerDao {
   private dynamoDb: DocumentClient
