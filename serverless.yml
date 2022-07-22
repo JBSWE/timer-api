@@ -3,6 +3,11 @@ app: timer-api
 service: timer-api
 frameworkVersion: '3.21.0'
 
+package:
+  patterns:
+    - '!.idea'
+    - '!src/**'
+
 provider:
   name: aws
   runtime: nodejs14.x
