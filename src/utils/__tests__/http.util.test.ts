@@ -1,6 +1,11 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-import { getCorrelationIdFromHttpRequest, makeAcceptedHttpResponse, makeErrorResponse } from '../http.util'
+import {
+  getCorrelationIdFromHttpRequest,
+  makeAcceptedHttpResponse,
+  makeErrorResponse,
+  makeOkHttpResponse
+} from '../http.util'
 
 describe('http.util', () => {
 
@@ -50,6 +55,37 @@ describe('http.util', () => {
               'Content-Type': 'application/json'
             },
           statusCode: 202
+        })
+    })
+  })
+
+  describe('makeOkHttpResponse', () => {
+    it('should return timer id with response 200 accepted', () => {
+      const timer = {
+        id: 'some-id',
+        time: 'some-time',
+        url: 'some-url',
+        processed: false
+      }
+
+      const response = makeOkHttpResponse(timer, 400)
+
+      expect(response).toEqual(
+        {
+          body: JSON.stringify(
+            {
+              id: timer.id,
+              // eslint-disable-next-line
+              time_left: 400
+            }
+          ),
+          headers:
+            {
+              'Access-Control-Allow-Credentials': true,
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json'
+            },
+          statusCode: 200
         })
     })
   })
