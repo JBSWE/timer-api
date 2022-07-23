@@ -77,11 +77,7 @@ describe('timer.service', () => {
       }
       const timerService = new TimerService(TimerDaoMock)
 
-      const timer = await timerService.getTimerById(
-        context,
-        {
-          id: 'some-id',
-        } as unknown as Timer)
+      const timer = await timerService.getTimerById(context, 'some-id')
 
       expect(timer).toBe(mockTimer)
       expect(getByIdMock).toBeCalledWith('some-id')
@@ -95,12 +91,7 @@ describe('timer.service', () => {
       }
       const timerService = new TimerService(TimerDaoMock)
 
-      const timer = await timerService.getTimerById(
-        context,
-        {
-          id: 'some-id',
-        } as unknown as Timer
-      )
+      const timer = await timerService.getTimerById(context,'some-id')
 
       expect(timer).toBe(undefined)
       expect(getByIdMock).toBeCalledWith('some-id')

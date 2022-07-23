@@ -7,6 +7,7 @@ export function makeOkHttpResponse(result: Timer, timeLeft: number): APIGatewayP
     statusCode: 200,
     body: JSON.stringify({
       id: result.id,
+      // eslint-disable-next-line
       time_left: timeLeft
     }),
     headers: {

@@ -10,13 +10,12 @@ export class TimerService {
       return (await this.timerDao.upsert(timer)) as boolean
   }
 
-  async getTimerById(timerContext: TimerContext, timer: Timer): Promise<Timer | undefined> {
-    const TimerId = timer.id
+  async getTimerById(timerContext: TimerContext, timerId: string): Promise<Timer | undefined> {
     try {
-      timerContext.logger.info(`getting timer for id: ${TimerId}`)
-      return await this.timerDao.getById(TimerId)
+      timerContext.logger.info(`Getting timer for id: ${timerId}`)
+      return await this.timerDao.getById(timerId)
     } catch(NotFoundError) {
-      timerContext.logger.warn(`There is no content resource with the id: ${TimerId}`)
+      timerContext.logger.warn(`There is no content resource with the id: ${timerId}`)
       return undefined
     }
   }

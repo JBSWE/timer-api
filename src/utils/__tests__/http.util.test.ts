@@ -75,6 +75,7 @@ describe('http.util', () => {
           body: JSON.stringify(
             {
               id: timer.id,
+              // eslint-disable-next-line
               time_left: 400
             }
           ),

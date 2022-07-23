@@ -35,6 +35,13 @@ provider:
             - Fn::GetAtt: [ TimerCommandQueue, Arn ]
 
 functions:
+  getTimer:
+    handler: dist/handlers/httpHandler.getTimer
+    events:
+      - httpApi:
+          path: /timers/{id}
+          method: get
+
   postTimer:
     handler: dist/handlers/httpHandler.postTimer
     events:
