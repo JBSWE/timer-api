@@ -9,20 +9,42 @@ jest.mock('../../AWS/sqsPublisher', () => {
   }
 })
 
-import type { APIGatewayProxyEvent } from 'aws-lambda'
-import { DateTime, Settings } from 'luxon'
-import { mocked } from 'ts-jest/utils'
-import { v4 } from 'uuid'
+const getTimerByIdMock = jest.fn()
+jest.mock('../../services/timer.service', () => {
+  return {
+    TimerService: jest.fn().mockImplementation(() => {
+      return {
+        getTimerById: getTimerByIdMock,
+      }
+    }),
+  }
+})
 
-import { postTimer } from '../httpHandler'
+import { getTimeDifferenceFromNow } from '../../utils/time.util'
+
+jest.mock('../../utils/time.util')
+const getTimeDifferenceFromNowMock = getTimeDifferenceFromNow as jest.MockedFunction<typeof getTimeDifferenceFromNow>
+
+import type {APIGatewayProxyEvent} from 'aws-lambda'
+import {DateTime, Settings} from 'luxon'
+import {mocked} from 'ts-jest/utils'
+import {v4} from 'uuid'
+
+import {getTimer, postTimer} from '../httpHandler'
 
 jest.mock('uuid')
 const uuidV4Mock = mocked(v4)
 
-function createTimerRequest(timerRequest: string): APIGatewayProxyEvent {
+function createPostTimerRequest(timerRequest: string): APIGatewayProxyEvent {
   return {
     body: timerRequest,
   } as APIGatewayProxyEvent
+}
+
+function createGetTimerRequest(id: string): APIGatewayProxyEvent {
+  return {
+    pathParameters: {id},
+  } as unknown as APIGatewayProxyEvent
 }
 
 describe('httpHandler', () => {
@@ -45,7 +67,7 @@ describe('httpHandler', () => {
       }))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
 
       expect(result.statusCode).toEqual(202)
       expect(JSON.parse(result.body)).toEqual({id: 'test-id'})
@@ -66,7 +88,7 @@ describe('httpHandler', () => {
       }))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
 
       expect(result.statusCode).toEqual(500)
       expect(publishMock).toBeCalled()
@@ -81,15 +103,41 @@ describe('httpHandler', () => {
       expect(publishMock).not.toBeCalled()
     })
 
-    it('does NOT publish event into sqs queue and returns 400 when request has no body', async () => {
+    it('does NOT publish event into sqs queue and returns 400 when request has no valid body', async () => {
       const buff = new Buffer(JSON.stringify({hours: '4', minutes: '0', url: 'https://someserver.com'}))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
 
       expect(result.statusCode).toEqual(422)
       expect(publishMock).not.toBeCalled()
     })
+  })
 
+  describe('getTimer', () => {
+    it('successfully gets timer and returns 200', async () => {
+      const timer = {
+        id: 'some-id',
+        time: 'some-time',
+        url: 'some-url',
+        processed: false
+      }
+      getTimerByIdMock.mockReturnValue(timer)
+      getTimeDifferenceFromNowMock.mockReturnValue(400)
+
+      const result = await getTimer(createGetTimerRequest('some-id'), expect.anything())
+
+      expect(result.statusCode).toEqual(200)
+      // eslint-disable-next-line
+      expect(JSON.parse(result.body)).toEqual({id: 'some-id', time_left: 400})
+    })
+
+    it('unsuccessfully gets timer and returns 404', async () => {
+      getTimerByIdMock.mockReturnValue(undefined)
+
+      const result = await getTimer(createGetTimerRequest('some-id'), expect.anything())
+
+      expect(result.statusCode).toEqual(404)
+    })
   })
 })

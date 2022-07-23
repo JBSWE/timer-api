@@ -3,13 +3,19 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { SqsPublisher } from '../AWS/sqsPublisher'
 import type { ProcessEnv } from '../config'
 import { getString } from '../config'
+import { TimerDao } from '../dao/timer.dao'
+import { BadRequestError } from '../errors/badRequest.error'
 import type { LambdaRequestContext, TimerHttpPost } from '../models'
 import { Command } from '../models'
+import { TimerService } from '../services/timer.service'
 import { createContextForHttpRequest } from '../utils/createContext.util'
-import { makeAcceptedHttpResponse, makeErrorResponse } from '../utils/http.util'
+import { makeAcceptedHttpResponse, makeErrorResponse, makeOkHttpResponse } from '../utils/http.util'
+import { getTimeDifferenceFromNow } from '../utils/time.util'
 import { timerBuilder } from '../utils/timerBuilder.util'
 
 const sqsPublisher = new SqsPublisher(getString('SQS_URL' as ProcessEnv))
+const timerDao = new TimerDao(getString('DYNAMODB_TABLE' as ProcessEnv))
+const timerService = new TimerService(timerDao)
 
 export async function postTimer(event: APIGatewayProxyEvent, context: LambdaRequestContext): Promise<APIGatewayProxyResult> {
   const timerContext = createContextForHttpRequest(event, context)
@@ -40,4 +46,33 @@ function getPostInputFromEvent(event: APIGatewayProxyEvent): TimerHttpPost | und
 
   const decodedJsonObject = Buffer.from(event.body, 'base64').toString('ascii')
   return JSON.parse(decodedJsonObject)
+}
+
+export async function getTimer(
+  event: APIGatewayProxyEvent,
+  context: LambdaRequestContext
+): Promise<APIGatewayProxyResult> {
+  const timerContext = createContextForHttpRequest(event, context)
+  const timerId = getIdParam(event)
+
+  timerContext.logger.info(`Fetching timer ${timerId}`)
+  const timer = await timerService.getTimerById(timerContext, timerId)
+
+  if (!timer) {
+    timerContext.logger.warn(`Could not find timer ${timerId}.`)
+    return makeErrorResponse(404, `Could not find timer ${timerId}`)
+  }
+
+  timerContext.logger.info(`Successfully retrieved timer ${timerId}`)
+  const timeDifference = getTimeDifferenceFromNow(timer)
+
+  return makeOkHttpResponse(timer, timeDifference)
+}
+
+function getIdParam(event: APIGatewayProxyEvent): string {
+  const id = event.pathParameters && event.pathParameters.id
+  if (!id) {
+    throw new BadRequestError('No id provided')
+  }
+  return id
 }
