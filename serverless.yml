@@ -101,7 +101,7 @@ functions:
 
 resources:
   Resources:
-    TodosDynamoDbTable:
+    TimerDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
