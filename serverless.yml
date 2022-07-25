@@ -10,9 +10,13 @@ plugins:
   - serverless-offline-sqs
 
 package:
-  patterns:
-    - '!.idea'
-    - '!src/**'
+  exclude:
+    - ".*/**"
+    - "src/**"
+    - "**/*.zip"
+  include:
+    - "dist/**"
+    - "config/**"
 
 provider:
   name: aws
