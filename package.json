@@ -35,7 +35,6 @@
     "jest": "^27.3.1",
     "jest-mock-axios": "^4.6.1",
     "lint-staged": "^11.2.3",
-    "nodemon": "^2.0.14",
     "pino-pretty": "^7.1.0",
     "serverless": "^3.21.0",
     "serverless-dotenv-plugin": "^4.0.1",
