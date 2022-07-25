@@ -10,10 +10,11 @@ import { Command } from '../models'
 import { TimerService } from '../services/timer.service'
 import { createContextForHttpRequest } from '../utils/createContext.util'
 import { makeAcceptedHttpResponse, makeErrorResponse, makeOkHttpResponse } from '../utils/http.util'
+import { getSqsUrl } from '../utils/offline.util'
 import { getTimeDifferenceFromNow } from '../utils/time.util'
 import { timerBuilder } from '../utils/timerBuilder.util'
 
-const sqsPublisher = new SqsPublisher(getString('SQS_URL' as ProcessEnv))
+const sqsPublisher = new SqsPublisher(getSqsUrl())
 const timerDao = new TimerDao(getString('DYNAMODB_TABLE' as ProcessEnv))
 const timerService = new TimerService(timerDao)
 
@@ -44,8 +45,11 @@ function getPostInputFromEvent(event: APIGatewayProxyEvent): TimerHttpPost | und
     return undefined
   }
 
-  const decodedJsonObject = Buffer.from(event.body, 'base64').toString('ascii')
-  return JSON.parse(decodedJsonObject)
+  if(event.isBase64Encoded) {
+    const decodedJsonObject = Buffer.from(event.body, 'base64').toString('ascii')
+    return JSON.parse(decodedJsonObject)
+  }
+  return JSON.parse(event.body)
 }
 
 export async function getTimer(

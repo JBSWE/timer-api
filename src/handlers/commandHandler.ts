@@ -9,10 +9,11 @@ import type { LambdaRequestContext, SqsRequest, Timer, TimerContext } from '../m
 import { Command } from '../models'
 import { TimerService } from '../services/timer.service'
 import { createContextForSqsEvent } from '../utils/createContext.util'
+import { getSqsUrl } from '../utils/offline.util'
 import { getTimeDifferenceFromNow } from '../utils/time.util'
 
 const timerDao = new TimerDao(getString('DYNAMODB_TABLE' as ProcessEnv))
-const sqsPublisher = new SqsPublisher(getString('SQS_URL' as ProcessEnv))
+const sqsPublisher = new SqsPublisher(getSqsUrl())
 const timerService = new TimerService(timerDao)
 
 export async function processCommand(event: SQSEvent, context: LambdaRequestContext): Promise<void> {

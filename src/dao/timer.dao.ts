@@ -1,4 +1,3 @@
-import { DynamoDB } from 'aws-sdk'
 import type {
   DocumentClient,
   GetItemInput,
@@ -9,12 +8,13 @@ import type {
 
 import { NotFoundError } from '../errors/notFound.error'
 import type { Timer } from '../models'
+import { getDynamoDbClient } from '../utils/offline.util'
 
 export class TimerDao {
   private dynamoDb: DocumentClient
 
   constructor(protected tableName: string) {
-    this.dynamoDb = new DynamoDB.DocumentClient()
+    this.dynamoDb = getDynamoDbClient()
   }
 
   async upsert(newObj: Timer): Promise<PutItemOutput> {
