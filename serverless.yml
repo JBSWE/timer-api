@@ -45,7 +45,6 @@ provider:
           Resource:
             - Fn::GetAtt: [ TimerCommandQueue, Arn ]
 custom:
-  stage: ${self:custom.serverless-offline.region}
   dotenv:
     path: ./config/
     logging: false
