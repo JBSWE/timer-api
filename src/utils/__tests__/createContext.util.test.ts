@@ -3,17 +3,16 @@ import type { APIGatewayProxyEvent, SQSEvent } from 'aws-lambda'
 import type { SqsRequest, Timer } from '../../models'
 import { Command } from '../../models'
 import {
-  createContextForHttpRequest, createContextForSqsEvent,
+  createContextForHttpRequest, createContextForScheduleHandler, createContextForSqsEvent,
 } from '../createContext.util'
 
-const lambdaContext = {
-  authorizer: {
-    userRoles: ['test'],
-  },
-  awsRequestId: 'test',
-}
-
 describe('createContext', () => {
+  const lambdaContext = {
+    authorizer: {
+      userRoles: ['test'],
+    },
+    awsRequestId: 'test',
+  }
   describe('createContextForHttpRequest', () => {
     it('should return context with corrId from http header', () => {
       const httpRequest = {
@@ -71,6 +70,15 @@ describe('createContext', () => {
       const context = createContextForSqsEvent(sqsEvent, lambdaContext)
 
       expect(context.correlationId).toContain('some-upstream-service-uuid')
+    })
+  })
+
+  describe('createContextForScheduleHandler', () => {
+    it('should return context with corrId from http header', () => {
+
+      const context = createContextForScheduleHandler(lambdaContext)
+
+      expect(context.correlationId).toContain('timer-api')
     })
   })
 })

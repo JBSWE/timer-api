@@ -29,3 +29,12 @@ export function createContextForSqsEvent(event: SQSEvent, context: LambdaRequest
     logger: logger,
   }
 }
+
+export function createContextForScheduleHandler(context: LambdaRequestContext): TimerContext {
+  const correlationId = extendCorrelationId(undefined)
+  const logger = createLoggerForAwsLambda(context, correlationId)
+  return {
+    correlationId: correlationId,
+    logger: logger,
+  }
+}
