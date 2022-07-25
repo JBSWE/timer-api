@@ -1,6 +1,6 @@
 {
   "name": "timer-api",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "author": "Jack Burke",
   "license": "UNLICENSED",
   "engines": {
@@ -38,16 +38,22 @@
     "nodemon": "^2.0.14",
     "pino-pretty": "^7.1.0",
     "serverless": "^3.21.0",
+    "serverless-dotenv-plugin": "^4.0.1",
+    "serverless-dynamodb-local": "^0.2.35",
+    "serverless-offline": "^8.2.0",
+    "serverless-offline-sqs": "^6.0.0",
     "ts-jest": "^27.0.7",
     "typescript": "^4.7.4"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon",
+    "createLocalSqsQueue": "aws sqs --endpoint-url http://0.0.0.0:9324 create-queue --queue-name timer-api-command-queue-development --region eu-central-1",
+    "local:start": "npm run build && NODE_ENV=development serverless offline start --stage=development --verbose",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --fix --ext .js,.ts",
     "prepare": "husky install",
     "preversion": "npm run build && npm run test && npm run lint",
+    "setUpLocalSqs": "docker run --name Fake-SQS -d -p 9324:9324  softwaremill/elasticmq",
     "test": "NODE_ENV=test jest",
     "watch": "tsc -w"
   }

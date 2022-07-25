@@ -3,6 +3,12 @@ app: timer-api
 service: timer-api
 frameworkVersion: '3.21.0'
 
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-offline-sqs
+
 package:
   patterns:
     - '!.idea'
@@ -16,6 +22,7 @@ provider:
   environment:
     DYNAMODB_TABLE: ${self:service}-${sls:stage}
     SQS_URL: { Ref: TimerCommandQueue }
+    IS_OFFLINE: false
   httpApi:
     cors: true
   iam:
@@ -33,6 +40,35 @@ provider:
             - sqs:SendMessage
           Resource:
             - Fn::GetAtt: [ TimerCommandQueue, Arn ]
+custom:
+  stage: ${self:custom.serverless-offline.region}
+  dotenv:
+    path: ./config/
+    logging: false
+
+  dynamodb:
+    stages:
+      - development
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+
+  serverless-offline:
+    region: localhost
+
+  serverless-offline-sqs:
+    autoCreate: true
+    apiVersion: '2012-11-05'
+    endpoint: http://localhost:9324
+    region: ${self:custom.serverless-offline.region}
+    accessKeyId: root
+    secretAccessKey: root
+    skipCacheInvalidation: false
 
 functions:
   getTimer:

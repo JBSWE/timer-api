@@ -35,9 +35,10 @@ import {getTimer, postTimer} from '../httpHandler'
 jest.mock('uuid')
 const uuidV4Mock = mocked(v4)
 
-function createPostTimerRequest(timerRequest: string): APIGatewayProxyEvent {
+function createPostTimerRequest(timerRequest: string, isBase64Encoded: boolean): APIGatewayProxyEvent {
   return {
     body: timerRequest,
+    isBase64Encoded
   } as APIGatewayProxyEvent
 }
 
@@ -67,7 +68,26 @@ describe('httpHandler', () => {
       }))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data, true), expect.anything())
+
+      expect(result.statusCode).toEqual(202)
+      expect(JSON.parse(result.body)).toEqual({id: 'test-id'})
+      expect(publishMock).toBeCalled()
+    })
+
+    it('publishes non base54 event data into sqs queue and returns 202', async () => {
+      publishMock.mockReturnValue(true)
+      uuidV4Mock.mockReturnValue('test-id')
+      const expectedNow = DateTime.utc(2021, 6, 1, 23, 0, 0)
+      Settings.now = (): number => expectedNow.toMillis()
+      const data = JSON.stringify({
+        hours: '4',
+        minutes: '0',
+        seconds: '1',
+        url: 'https://someserver.com'
+      })
+
+      const result = await postTimer(createPostTimerRequest(data, false), expect.anything())
 
       expect(result.statusCode).toEqual(202)
       expect(JSON.parse(result.body)).toEqual({id: 'test-id'})
@@ -88,7 +108,7 @@ describe('httpHandler', () => {
       }))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data, true), expect.anything())
 
       expect(result.statusCode).toEqual(500)
       expect(publishMock).toBeCalled()
@@ -107,7 +127,7 @@ describe('httpHandler', () => {
       const buff = new Buffer(JSON.stringify({hours: '4', minutes: '0', url: 'https://someserver.com'}))
       const base64data = buff.toString('base64')
 
-      const result = await postTimer(createPostTimerRequest(base64data), expect.anything())
+      const result = await postTimer(createPostTimerRequest(base64data, true), expect.anything())
 
       expect(result.statusCode).toEqual(422)
       expect(publishMock).not.toBeCalled()
