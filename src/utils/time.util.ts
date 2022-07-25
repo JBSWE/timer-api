@@ -8,5 +8,5 @@ export function getTimeDifferenceFromNow(timer: Timer): number {
 
   const difference = Interval.fromDateTimes(now, timerExecutionTime)
 
-  return Math.floor(difference.length('seconds')) || 0
+  return difference.length('seconds') || 0
 }
