@@ -56,7 +56,7 @@ async function processUpsert(timeDifferenceFromNow: number, timer: Timer, servic
       id: timer.id,
       time: timer.time,
       url: timer.url,
-      processed: true
+      processed: 'true'
     }
     await Promise.all([
       timerService.upsertTimer(timerContext, updatedTimer),

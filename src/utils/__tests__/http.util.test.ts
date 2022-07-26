@@ -40,7 +40,7 @@ describe('http.util', () => {
         id: 'some-id',
         time: 'some-time',
         url: 'some-url',
-        processed: false
+        processed: 'false'
       }
 
       const response = makeAcceptedHttpResponse(timer)
@@ -65,7 +65,7 @@ describe('http.util', () => {
         id: 'some-id',
         time: 'some-time',
         url: 'some-url',
-        processed: false
+        processed: 'false'
       }
 
       const response = makeOkHttpResponse(timer, 400)
