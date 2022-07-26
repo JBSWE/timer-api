@@ -47,6 +47,7 @@
   "scripts": {
     "build": "tsc",
     "createLocalSqsQueue": "aws sqs --endpoint-url http://0.0.0.0:9324 create-queue --queue-name timer-api-command-queue-development --region eu-central-1",
+    "deploy:dev": "serverless deploy --region eu-central-1 --stage dev --verbose ",
     "local:start": "npm run build && NODE_ENV=development serverless offline start --stage=development --verbose",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --fix --ext .js,.ts",
