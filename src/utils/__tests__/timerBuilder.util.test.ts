@@ -15,7 +15,7 @@ describe('timerBuilder.util.ts', () => {
     const expectedNow = DateTime.utc(2021, 6, 1, 23, 0, 0)
     Settings.now = ():number => expectedNow.toMillis()
 
-    const httpInput = {hours: '4', minutes: '0', seconds: '1', url: 'https://someserver.com'} as TimerHttpPost
+    const httpInput = {hours: 4, minutes: 0, seconds: 1, url: 'https://someserver.com'} as TimerHttpPost
 
     const result = timerBuilder(httpInput)
 
@@ -28,7 +28,7 @@ describe('timerBuilder.util.ts', () => {
   })
 
   it('returns undefined if not a valid input', () => {
-    const httpInput = {hours: '4'} as TimerHttpPost
+    const httpInput = {hours: '4', minutes:'some-minutes-in-english'} as unknown as TimerHttpPost
 
     const result = timerBuilder(httpInput)
 

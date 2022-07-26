@@ -1,6 +1,6 @@
 export interface TimerHttpPost {
-  hours: string,
-  minutes: string,
-  seconds: string,
+  hours: number,
+  minutes: number,
+  seconds: number,
   url: string
 }
