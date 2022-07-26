@@ -119,10 +119,8 @@ resources:
           - AttributeName: processed
             AttributeType: S
         KeySchema:
-          - AttributeName: time
-            KeyType: HASH
           - AttributeName: id
-            KeyType: RANGE
+            KeyType: HASH
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.DYNAMODB_INDEX}
             KeySchema:
