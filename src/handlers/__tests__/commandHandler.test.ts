@@ -125,7 +125,7 @@ describe('commandHandler', () => {
       getTimeDifferenceFromNowMock.mockReturnValue(500)
       const timer = {
         id: 'some-id',
-        processed: true,
+        processed: 'true',
         time: '2022-07-22T23:53:31.218Z',
         url: 'some-url'
       }

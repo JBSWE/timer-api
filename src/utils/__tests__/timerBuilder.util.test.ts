@@ -21,7 +21,7 @@ describe('timerBuilder.util.ts', () => {
 
     expect(result).toStrictEqual({
       id: 'test-id',
-      processed: false,
+      processed: 'false',
       time: '2021-06-02T03:00:01.000Z',
       url: 'https://someserver.com'
       })

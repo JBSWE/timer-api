@@ -28,10 +28,10 @@ describe('timer.service', () => {
         id: 'some-id',
         time: '2022-07-22T23:53:31.218Z',
         url: 'https://someserver.com',
-        processed: false
+        processed: 'false'
       }
 
-      const upsertedStatus = await timerService.upsertTimer(context,timer)
+      const upsertedStatus = await timerService.upsertTimer(context, timer)
 
       expect(upsertedStatus).toBe(true)
       expect(upsertMock).toBeCalledWith(timer)
@@ -48,7 +48,7 @@ describe('timer.service', () => {
         id: 'some-id',
         time: '2022-07-22T23:53:31.218Z',
         url: 'https://someserver.com',
-        processed: false
+        processed: 'false'
       }
 
       const upsertedStatus = await timerService.upsertTimer(context, timer)

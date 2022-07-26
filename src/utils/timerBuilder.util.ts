@@ -18,7 +18,7 @@ export function timerBuilder(input: TimerHttpPost): Timer | undefined {
       seconds: Number(seconds)
     }).setZone('UTC').toISO(),
     url,
-    processed: false
+    processed: 'false'
   }
 
 }

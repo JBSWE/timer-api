@@ -27,6 +27,7 @@ provider:
     DYNAMODB_TABLE: ${self:service}-${sls:stage}
     SQS_URL: { Ref: TimerCommandQueue }
     IS_OFFLINE: false
+    DYNAMODB_INDEX: "unprocessed-index-${self:service}-${sls:stage}"
   httpApi:
     cors: true
   iam:
@@ -105,13 +106,26 @@ resources:
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: id
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: time
+            AttributeType: S
+          - AttributeName: processed
             AttributeType: S
         KeySchema:
-          -
-            AttributeName: id
+          - AttributeName: time
             KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.DYNAMODB_INDEX}
+            KeySchema:
+              - AttributeName: processed
+                KeyType: HASH
+              - AttributeName: time
+                KeyType: RANGE
+            Projection:
+              ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
 

@@ -140,7 +140,7 @@ describe('httpHandler', () => {
         id: 'some-id',
         time: 'some-time',
         url: 'some-url',
-        processed: false
+        processed: 'false'
       }
       getTimerByIdMock.mockReturnValue(timer)
       getTimeDifferenceFromNowMock.mockReturnValue(400)
