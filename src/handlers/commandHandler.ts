@@ -14,7 +14,7 @@ import { getTimeDifferenceFromNow } from '../utils/time.util'
 
 const timerDao = new TimerDao(getString('DYNAMODB_TABLE' as ProcessEnv))
 const sqsPublisher = new SqsPublisher(getSqsUrl())
-const timerService = new TimerService(timerDao)
+const timerService = new TimerService(timerDao, sqsPublisher)
 
 export async function processCommand(event: SQSEvent, context: LambdaRequestContext): Promise<void> {
   const timerContext = createContextForSqsEvent(event, context)

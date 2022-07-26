@@ -99,6 +99,12 @@ functions:
               - Arn
           batchSize: 1
 
+  scheduleOutstandingTimers:
+    handler: dist/handlers/scheduleHandler.scheduleOutstandingTimers
+    timeout: 15
+    events:
+      - schedule: rate(5 minutes)
+
 resources:
   Resources:
     TimerDynamoDbTable:
