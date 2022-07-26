@@ -104,6 +104,8 @@ region=eu-central-1
   npm run deployDev
 ```
 
+## System Design
+![alt text](./timer-api.png)
 ## Tech Stack
 
 **Server:** Typescript, Node.js, Serverless framework, AWS.
