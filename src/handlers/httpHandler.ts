@@ -16,7 +16,7 @@ import { timerBuilder } from '../utils/timerBuilder.util'
 
 const sqsPublisher = new SqsPublisher(getSqsUrl())
 const timerDao = new TimerDao(getString('DYNAMODB_TABLE' as ProcessEnv))
-const timerService = new TimerService(timerDao)
+const timerService = new TimerService(timerDao, sqsPublisher)
 
 export async function postTimer(event: APIGatewayProxyEvent, context: LambdaRequestContext): Promise<APIGatewayProxyResult> {
   const timerContext = createContextForHttpRequest(event, context)
