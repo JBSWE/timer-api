@@ -58,10 +58,7 @@ async function processUpsert(timeDifferenceFromNow: number, timer: Timer, servic
       url: timer.url,
       processed: 'true'
     }
-    await Promise.all([
-      timerService.upsertTimer(timerContext, updatedTimer),
-      sqsPublisher.publish(timerContext, Command.APPLY, updatedTimer, timeDifferenceFromNow)
-    ])
+      await timerService.upsertTimer(timerContext, updatedTimer) && await sqsPublisher.publish(timerContext, Command.APPLY, updatedTimer, timeDifferenceFromNow)
   } else {
     await timerService.upsertTimer(timerContext, timer)
   }

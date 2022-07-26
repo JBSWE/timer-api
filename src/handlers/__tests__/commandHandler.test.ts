@@ -123,6 +123,7 @@ describe('commandHandler', () => {
 
     it('command UPSERT saves timer to database and adds to queue with delay if its less than 15 minutes in the future', async () => {
       getTimeDifferenceFromNowMock.mockReturnValue(500)
+      upsertTimerMock.mockResolvedValue(true)
       const timer = {
         id: 'some-id',
         processed: 'true',
@@ -135,6 +136,17 @@ describe('commandHandler', () => {
 
       expect(upsertTimerMock).toBeCalledWith(expect.anything(), timer)
       expect(publishSqsMock).toBeCalledWith(expect.anything(), 'APPLY', timer, 500)
+    })
+
+    it('command UPSERT should not put timer on queue if upsert fails', async () => {
+      getTimeDifferenceFromNowMock.mockReturnValue(500)
+      upsertTimerMock.mockRejectedValue(Error())
+      const event = createUpsertSQSEvent()
+
+      await expect(processCommand(event, context)).rejects.toThrowError()
+
+      expect(upsertTimerMock).toBeCalledTimes(1)
+      expect(publishSqsMock).toBeCalledTimes(0)
     })
   })
 })
